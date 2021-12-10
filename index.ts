@@ -1,5 +1,6 @@
 import Crypto from 'crypto';
 import Axios from 'axios';
+import { AxiosResponse } from 'axios';
 import * as tencentCloud from 'tencentcloud-sdk-nodejs';
 import Zlib from 'zlib';
 import { ImResult, ImServer } from 'define_type';
@@ -197,7 +198,7 @@ export default class ImServerSDK implements ImServer {
         return hash.update(message).digest('hex');
     }
 
-    public async request(params: {
+    public async request<T extends { [key: string]: any }>(params: {
         method: 'GET' | 'POST';
         path: string;
         data?: { [key: string]: any };
@@ -213,7 +214,7 @@ export default class ImServerSDK implements ImServer {
         const random = this.random;
         const usersig = this.usersig;
 
-        const res = await Axios({
+        const res: AxiosResponse<ImResult & T> = await Axios({
             url: `https://${domain}${path}`,
             method,
             data,
@@ -236,7 +237,7 @@ export default class ImServerSDK implements ImServer {
             throw new Error(ErrorInfo);
         }
 
-        return response;
+        return res.data;
     }
 
     // //  启动云端混流
@@ -293,68 +294,68 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/im_open_login_svc/account_import',
     ) {
-        return this.request({ method: 'POST', path, data: params });
+        return this.request<{ FailAccounts: Array<string> }>({
+            method: 'POST',
+            path,
+            data: params,
+        });
     }
 
     public multiaccount_import(
         params: { Accounts: string[] },
         path: string = 'v4/im_open_login_svc/multiaccount_import',
-    ): Promise<ImResult & { FailAccounts: string[] }> {
-        return this.request({ method: 'POST', path, data: params });
+    ) {
+        return this.request<{ FailAccounts: string[] }>({
+            method: 'POST',
+            path,
+            data: params,
+        });
     }
 
     public account_delete(
         params: { DeleteItem: { UserID: string }[]; UserID: string },
         path: string = 'v4/im_open_login_svc/account_delete',
-    ): Promise<
-        ImResult & {
+    ) {
+        return this.request<{
             ResultItem: {
                 ResultCode: number;
                 ResultInfo: string;
                 UserID: string;
             }[];
-        }
-    > {
-        return this.request({ method: 'POST', path, data: params });
+        }>({ method: 'POST', path, data: params });
     }
 
     public account_check(
         params: { CheckItem: { UserID: string }[]; UserID: string },
         path: string = 'v4/im_open_login_svc/account_check',
-    ): Promise<
-        ImResult & {
+    ) {
+        return this.request<{
             ResultItem: any[];
             UserID: string;
             ResultCode: number;
             AccountStatus: string;
-        }
-    > {
-        return this.request({ method: 'POST', path, data: params });
+        }>({ method: 'POST', path, data: params });
     }
 
     public kick(
         params: { Identifier: string },
         path: string = 'v4/im_open_login_svc/kick',
-    ): Promise<ImResult> {
+    ) {
         return this.request({ method: 'POST', path, data: params });
     }
 
-    // public query_online_status(params: { To_Account: string[]; IsNeedDetail: 0; }, path: string): Promise<ImResult & { QueryResult: { To_Account: string; Status: string; }[]; }>;
-    // public query_online_status(params: { To_Account: string[]; IsNeedDetail: 1; }, path: string): Promise<ImResult & { QueryResult: { To_Account: string; Status: string; Detail: { Platform: string; Status: string; }[]; }[]; }>;
     public query_online_status(
         params: { To_Account: string[]; IsNeedDetail?: 0 | 1 },
         path: string = 'v4/openim/query_online_status',
-    ): Promise<
-        ImResult & {
+    ) {
+        const { To_Account, IsNeedDetail = 0 } = params;
+        return this.request<{
             QueryResult: Array<{
                 To_Account: string;
                 Status: string;
                 Detail: Array<{ Platform: string; Status: string }>;
             }>;
-        }
-    > {
-        const { To_Account, IsNeedDetail = 0 } = params;
-        return this.request({
+        }>({
             method: 'POST',
             path,
             data: { To_Account, IsNeedDetail },
