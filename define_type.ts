@@ -158,21 +158,55 @@ export interface ImServer {
         }
     >;
 
-    // //  #单聊消息
-    // //  单发单聊消息
-    // query_online_status();
-    // //  批量发单聊消息
-    // batchsendmsg();
-    // //  导入单聊消息
-    // importmsg();
-    // //  查询单聊消息
-    // admin_getroammsg();
-    // //  撤回单聊消息
-    // admin_msgwithdraw();
-    // //  设置单聊消息已读
-    // admin_set_msg_read();
-    // //  查询单聊消息计数
-    // get_c2c_unread_msg_num();
+    //  单发单聊消息 同步到from_account
+    sendmsg(
+        params: ImMsgParams,
+        path: string,
+    ): Promise<
+        ImResult & { ActionStatus: 'OK'; MsgTime: number; MsgKey: string }
+    >;
+    //  批量发单聊消息
+    batchsendmsg(params: ImMsgParams, path: string): Promise<ImResult>;
+    //  导入单聊消息
+    importmsg(params: ImMsgParams, path: string): Promise<ImResult>;
+    //  查询单聊消息
+    admin_getroammsg(
+        params: {
+            From_Account: string;
+            To_Account: string;
+            MaxCnt: number;
+            MinTime: number;
+            MaxTime: number;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            Complete: number;
+            MsgCnt: number;
+            LastMsgTime: number;
+            LastMsgKey: string;
+            MsgList: Array<ImMsgParams>;
+        }
+    >;
+    //  撤回单聊消息
+    admin_msgwithdraw(
+        params: {
+            From_Account: string;
+            To_Account: string;
+            MsgKey: string;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  设置单聊消息已读
+    admin_set_msg_read(
+        params: { Report_Account: string; Peer_Account: string },
+        path: string,
+    ): Promise<ImResult>;
+    //  查询单聊消息计数
+    get_c2c_unread_msg_num(
+        params: { To_Account: string },
+        path: string,
+    ): Promise<ImResult>;
 
     // //  #全员推送
     // //  全员推送
@@ -309,4 +343,122 @@ export interface ImResult {
     ActionStatus: 'OK' | 'FAIL';
     ErrorInfo: string;
     ErrorCode: number;
+}
+
+//  IM消息类型
+export enum ImMsgType {
+    文本消息 = 'TIMTextElem',
+    地理位置消息 = 'TIMLocationElem',
+    表情消息 = 'TIMFaceElem',
+    自定义消息 = 'TIMCustomElem',
+    语音消息 = 'TIMSoundElem',
+    图片消息 = 'TIMImageElem',
+    文件消息 = 'TIMFileElem',
+    视频消息 = 'TIMVideoFileElem',
+}
+
+//  IM消息体
+export interface ImMsgContent {
+    [ImMsgType.文本消息]: {
+        Text: string;
+    };
+    [ImMsgType.地理位置消息]: {
+        Desc: string;
+        Latitude: number;
+        Longitude: number;
+    };
+    [ImMsgType.表情消息]: {
+        Index: number;
+        Data: string;
+    };
+    [ImMsgType.自定义消息]: {
+        Data: string;
+        Desc: string;
+        Ext: string;
+        Sound: string;
+    };
+    [ImMsgType.语音消息]: {
+        Url?: string;
+        UUID: string;
+        Size: number;
+        Second: number;
+        Download_Flag?: number;
+    };
+    [ImMsgType.图片消息]: {
+        UUID: string;
+        ImageFormat: number;
+        ImageInfoArray: Array<{
+            Type: number;
+            Size: number;
+            Width: number;
+            Height: number;
+            URL: string;
+        }>;
+    };
+    [ImMsgType.文件消息]: {
+        Url?: string;
+        UUID: string;
+        FileSize: number;
+        FileName: string;
+        Download_Flag?: number;
+    };
+    [ImMsgType.视频消息]: {
+        VideoUrl?: string;
+        VideoUUID: string;
+        VideoSize: number;
+        VideoSecond: number;
+        VideoFormat: string;
+        VideoDownloadFlag?: number;
+        ThumbUrl?: string;
+        ThumbUUID: string;
+        ThumbSize: number;
+        ThumbWidth: number;
+        ThumbHeight: number;
+        ThumbFormat: string;
+        ThumbDownloadFlag?: number;
+    };
+}
+
+//  IM图像类型
+export enum ImImageType {
+    原图 = 1,
+    大图,
+    缩略图,
+}
+
+export interface ImMsgBody {
+    MsgType: keyof ImMsgContent;
+    MsgContent: CASE<ImMsgBody['MsgType']> | Array<CASE<ImMsgBody['MsgType']>>;
+}
+
+//  类型匹配
+type CASE<T extends keyof ImMsgContent> = ImMsgContent[T];
+
+export interface ImMsgParams {
+    SyncOtherMachine?: 1 | 2;
+    From_Account?: string;
+    To_Account: string;
+    MsgLifeTime?: number; // 消息保存秒数
+    MsgSeq?: number;
+    MsgRandom: number;
+    MsgTimeStamp?: number;
+    ForbidCallbackControl?: Array<string>; // 禁止回调控制选项
+    SendMsgControl?: Array<string>; // 发送控制选项
+    MsgBody: Array<ImMsgBody>;
+    CloudCustomData?: string;
+    OfflinePushInfo?: {
+        PushFlag: number;
+        Desc: string; // 离线推送内容
+        Ext: string; // 离线推送透传
+        AndroidInfo: {
+            Sound: string; // 铃音
+        };
+        ApnsInfo: {
+            Sound: string; // 推送声音
+            BadgeMode: number; // 0计数 1 不计数
+            Title: string; // 推送标题
+            SubTitle: string; // 副标题
+            Image: string; //    图片地址
+        };
+    };
 }

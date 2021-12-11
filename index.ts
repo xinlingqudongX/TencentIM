@@ -3,7 +3,7 @@ import Axios from 'axios';
 import { AxiosResponse } from 'axios';
 import * as tencentCloud from 'tencentcloud-sdk-nodejs';
 import Zlib from 'zlib';
-import { ImResult, ImServer } from 'define_type';
+import { ImMsgParams, ImResult, ImServer } from 'define_type';
 
 export default class ImServerSDK implements ImServer {
     public config: {
@@ -360,5 +360,88 @@ export default class ImServerSDK implements ImServer {
             path,
             data: { To_Account, IsNeedDetail },
         });
+    }
+
+    public sendmsg(
+        params: ImMsgParams,
+        path: string = 'v4/openim/sendmsg',
+    ): Promise<
+        ImResult & { ActionStatus: 'OK'; MsgTime: number; MsgKey: string }
+    > {
+        return this.request<
+            ImResult & { ActionStatus: 'OK'; MsgTime: number; MsgKey: string }
+        >({
+            method: 'POST',
+            path,
+            data: params,
+        });
+    }
+
+    public batchsendmsg(
+        params: ImMsgParams,
+        path: string = 'v4/openim/batchsendmsg',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public importmsg(
+        params: ImMsgParams,
+        path: string = 'v4/openim/importmsg',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public admin_getroammsg(
+        params: {
+            From_Account: string;
+            To_Account: string;
+            MaxCnt: number;
+            MinTime: number;
+            MaxTime: number;
+        },
+        path: string = 'v4/openim/admin_getroammsg',
+    ): Promise<
+        ImResult & {
+            Complete: number;
+            MsgCnt: number;
+            LastMsgTime: number;
+            LastMsgKey: string;
+            MsgList: ImMsgParams[];
+        }
+    > {
+        return this.request<
+            ImResult & {
+                Complete: number;
+                MsgCnt: number;
+                LastMsgTime: number;
+                LastMsgKey: string;
+                MsgList: ImMsgParams[];
+            }
+        >({
+            method: 'POST',
+            path,
+            data: params,
+        });
+    }
+
+    public admin_msgwithdraw(
+        params: { From_Account: string; To_Account: string; MsgKey: string },
+        path: string = 'v4/openim/admin_msgwithdraw',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public admin_set_msg_read(
+        params: { Report_Account: string; Peer_Account: string },
+        path: string = 'get_c2c_unread_msg_num',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public get_c2c_unread_msg_num(
+        params: { To_Account: string },
+        path: string,
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
     }
 }
