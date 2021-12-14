@@ -7,6 +7,7 @@ import {
     ImBlackListCheckType,
     ImFriendCheckType,
     ImFriendDeleteType,
+    ImGroupType,
     ImMsgBody,
     ImMsgParams,
     ImProfileTag,
@@ -104,7 +105,7 @@ export default class ImServerSDK implements ImServer {
         return this.#usersig;
     }
 
-    // public get userBufsig() {
+    // public async get userBufsig() {
     //     const { identifier, expireSeconds } = this.config;
 
     //     this.#userBufsig = this.getSig(
@@ -113,11 +114,11 @@ export default class ImServerSDK implements ImServer {
     //         this.#userBuf,
     //     );
 
-    //     return this.#userBufsig;
+    //     return await this.#userBufsig;
     // }
 
     // private get userBuf() {
-    //     return this.#userBuf;
+    //     return await this.#userBuf;
     // }
 
     private set userBuf(val: string | null) {
@@ -251,52 +252,52 @@ export default class ImServerSDK implements ImServer {
     }
 
     // //  启动云端混流
-    // public StartMCUMixTranscode(params: { path: string }) {}
+    // public async StartMCUMixTranscode(params: { path: string }) {}
 
     // //  结束云端混流
-    // public StopMCUMixTranscode() {}
+    // public async StopMCUMixTranscode() {}
 
     // //  启动云端混流（字符串房间号）
-    // public StartMCUMixTranscodeByStrRoomId() {}
+    // public async StartMCUMixTranscodeByStrRoomId() {}
 
     // //  结束云端混流（字符串房间号）
-    // public StopMCUMixTranscodeByStrRoomId() {}
+    // public async StopMCUMixTranscodeByStrRoomId() {}
     // //  查询云端录制计费时长
-    // public DescribeRecordStatistic() {}
+    // public async DescribeRecordStatistic() {}
     // //  查询音视频互动计费时长
-    // public DescribeTrtcInteractiveTime() {}
+    // public async DescribeTrtcInteractiveTime() {}
     // //  查询旁路转码计费时长
-    // public DescribeTrtcMcuTranscodeTime() {}
+    // public async DescribeTrtcMcuTranscodeTime() {}
     // //  修改图片
-    // public ModifyPicture() {}
+    // public async ModifyPicture() {}
 
     // //  通话质量监控相关接口
     // //  创建异常信息
-    // public CreateTroubleInfo() {}
+    // public async CreateTroubleInfo() {}
     // //  查询异常体验事件
-    // public DescribeAbnormalEvent() {}
+    // public async DescribeAbnormalEvent() {}
     // //  查询详细事件
-    // public DescribeDetailEvent() {}
+    // public async DescribeDetailEvent() {}
     // //  查询历史房间列表
-    // public DescribeRoomInformation() {}
+    // public async DescribeRoomInformation() {}
     // //  查询历史用户列表与通话指标
-    // public DescribeCallDetail() {}
+    // public async DescribeCallDetail() {}
     // //  查询历史用户列表
-    // public DescribeUserInformation() {}
+    // public async DescribeUserInformation() {}
     // //  查询历史房间和用户数
-    // public DescribeHistoryScale() {}
+    // public async DescribeHistoryScale() {}
 
     // //  房间管理相关接口
     // //  移出用户
-    // public RemoveUser() {}
+    // public async RemoveUser() {}
     // //  解散房间
-    // public DismissRoom() {}
+    // public async DismissRoom() {}
     // //  移出用户（字符串房间号）
-    // public RemoveUserByStrRoomId() {}
+    // public async RemoveUserByStrRoomId() {}
     // //  解散房间（字符串房间号）
-    // public DismissRoomByStrRoomId() {}
+    // public async DismissRoomByStrRoomId() {}
 
-    public account_import(
+    public async account_import(
         params: {
             Identifier: string;
             Nick?: string | undefined;
@@ -304,29 +305,29 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/im_open_login_svc/account_import',
     ) {
-        return this.request<{ FailAccounts: Array<string> }>({
+        return await this.request<{ FailAccounts: Array<string> }>({
             method: 'POST',
             path,
             data: params,
         });
     }
 
-    public multiaccount_import(
+    public async multiaccount_import(
         params: { Accounts: string[] },
         path: string = 'v4/im_open_login_svc/multiaccount_import',
     ) {
-        return this.request<{ FailAccounts: string[] }>({
+        return await this.request<{ FailAccounts: string[] }>({
             method: 'POST',
             path,
             data: params,
         });
     }
 
-    public account_delete(
+    public async account_delete(
         params: { DeleteItem: { UserID: string }[]; UserID: string },
         path: string = 'v4/im_open_login_svc/account_delete',
     ) {
-        return this.request<{
+        return await this.request<{
             ResultItem: {
                 ResultCode: number;
                 ResultInfo: string;
@@ -335,11 +336,11 @@ export default class ImServerSDK implements ImServer {
         }>({ method: 'POST', path, data: params });
     }
 
-    public account_check(
+    public async account_check(
         params: { CheckItem: { UserID: string }[]; UserID: string },
         path: string = 'v4/im_open_login_svc/account_check',
     ) {
-        return this.request<{
+        return await this.request<{
             ResultItem: any[];
             UserID: string;
             ResultCode: number;
@@ -347,19 +348,19 @@ export default class ImServerSDK implements ImServer {
         }>({ method: 'POST', path, data: params });
     }
 
-    public kick(
+    public async kick(
         params: { Identifier: string },
         path: string = 'v4/im_open_login_svc/kick',
     ) {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public query_online_status(
+    public async query_online_status(
         params: { To_Account: string[]; IsNeedDetail?: 0 | 1 },
         path: string = 'v4/openim/query_online_status',
     ) {
         const { To_Account, IsNeedDetail = 0 } = params;
-        return this.request<{
+        return await this.request<{
             QueryResult: Array<{
                 To_Account: string;
                 Status: string;
@@ -372,13 +373,13 @@ export default class ImServerSDK implements ImServer {
         });
     }
 
-    public sendmsg(
+    public async sendmsg(
         params: ImMsgParams,
         path: string = 'v4/openim/sendmsg',
     ): Promise<
         ImResult & { ActionStatus: 'OK'; MsgTime: number; MsgKey: string }
     > {
-        return this.request<
+        return await this.request<
             ImResult & { ActionStatus: 'OK'; MsgTime: number; MsgKey: string }
         >({
             method: 'POST',
@@ -387,21 +388,21 @@ export default class ImServerSDK implements ImServer {
         });
     }
 
-    public batchsendmsg(
+    public async batchsendmsg(
         params: ImMsgParams,
         path: string = 'v4/openim/batchsendmsg',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public importmsg(
+    public async importmsg(
         params: ImMsgParams,
         path: string = 'v4/openim/importmsg',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public admin_getroammsg(
+    public async admin_getroammsg(
         params: {
             From_Account: string;
             To_Account: string;
@@ -419,7 +420,7 @@ export default class ImServerSDK implements ImServer {
             MsgList: ImMsgParams[];
         }
     > {
-        return this.request<
+        return await this.request<
             ImResult & {
                 Complete: number;
                 MsgCnt: number;
@@ -434,28 +435,28 @@ export default class ImServerSDK implements ImServer {
         });
     }
 
-    public admin_msgwithdraw(
+    public async admin_msgwithdraw(
         params: { From_Account: string; To_Account: string; MsgKey: string },
         path: string = 'v4/openim/admin_msgwithdraw',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public admin_set_msg_read(
+    public async admin_set_msg_read(
         params: { Report_Account: string; Peer_Account: string },
-        path: string = 'get_c2c_unread_msg_num',
+        path: string = 'v4/openim/admin_set_msg_read',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public get_c2c_unread_msg_num(
+    public async get_c2c_unread_msg_num(
         params: { To_Account: string },
-        path: string,
+        path: string = 'v4/openim/get_c2c_unread_msg_num',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_push(
+    public async im_push(
         params: {
             From_Account: string;
             MsgRandom: number;
@@ -470,24 +471,24 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/all_member_push/im_push',
     ): Promise<ImResult & { TaskId: string }> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_set_attr_name(
+    public async im_set_attr_name(
         params: { AttrNames: { [key: string]: string } },
         path: string = 'v4/all_member_push/im_set_attr_name',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_get_attr_name(
+    public async im_get_attr_name(
         params: {},
         path: string = 'v4/all_member_push/im_get_attr_name',
     ): Promise<ImResult & { AttrNames: { [key: string]: string } }> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_get_attr(
+    public async im_get_attr(
         params: { To_Account: string[] },
         path: string = 'v4/all_member_push/im_get_attr',
     ): Promise<
@@ -498,10 +499,10 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_set_attr(
+    public async im_set_attr(
         params: {
             UserAttrs: {
                 To_Account: string;
@@ -510,47 +511,47 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/all_member_push/im_set_attr',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_remove_attr(
+    public async im_remove_attr(
         params: { UserAttrs: { To_Account: string; Attrs: string[] }[] },
         path: string = 'v4/all_member_push/im_remove_attr',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_get_tag(
+    public async im_get_tag(
         params: { To_Account: string[] },
         path: string = 'v4/all_member_push/im_get_tag',
     ): Promise<
         ImResult & { UserTags: { To_Account: string; Tags: string[] }[] }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_add_tag(
+    public async im_add_tag(
         params: { UserTags: { To_Account: string; Tags: string[] }[] },
         path: string = 'v4/all_member_push/im_add_tag',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_remove_tag(
+    public async im_remove_tag(
         params: { UserTags: { To_Account: string; Tags: string[] }[] },
         path: string = 'v4/all_member_push/im_remove_tag',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public im_remove_all_tags(
+    public async im_remove_all_tags(
         params: { To_Account: string[] },
         path: string = 'v4/all_member_push/im_remove_all_tags',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public portrait_set(
+    public async portrait_set(
         params: {
             From_Account: string;
             ProfileItem: {
@@ -560,10 +561,10 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/profile/portrait_set',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public portrait_get(
+    public async portrait_get(
         params: { To_Account: string[]; TagList: ImProfileTag[] },
         path: string = 'v4/profile/portrait_get',
     ): Promise<
@@ -577,10 +578,10 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_add(
+    public async friend_add(
         params: {
             From_Account: string;
             AddFriendItem: {
@@ -593,10 +594,10 @@ export default class ImServerSDK implements ImServer {
         },
         path: string,
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_import(
+    public async friend_import(
         params: {
             From_Account: string;
             AddFriendItem: {
@@ -621,10 +622,10 @@ export default class ImServerSDK implements ImServer {
             Fail_Account: string[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_update(
+    public async friend_update(
         params: {
             From_Account: string;
             UpdateItem: {
@@ -643,10 +644,10 @@ export default class ImServerSDK implements ImServer {
             Fail_Account: string[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_delete(
+    public async friend_delete(
         params: {
             From_Account: string;
             To_Account: string[];
@@ -662,23 +663,23 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_delete_all(
+    public async friend_delete_all(
         params: { From_Account: string; DeleteType: ImFriendDeleteType },
         path: string,
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_check(
+    public async friend_check(
         params: {
             From_Account: string;
             To_Account: string[];
             CheckType: ImFriendCheckType;
         },
-        path: string,
+        path: string = 'v4/sns/friend_check',
     ): Promise<
         ImResult & {
             InfoItem: {
@@ -689,17 +690,17 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_get(
+    public async friend_get(
         params: {
             From_Account: string;
             StartIndex: number;
             StandardSequence?: number | undefined;
             CustomSequence?: number | undefined;
         },
-        path: string,
+        path: string = 'v4/sns/friend_get',
     ): Promise<
         ImResult & {
             UserDataItem: {
@@ -713,16 +714,16 @@ export default class ImServerSDK implements ImServer {
             NextStartIndex: number;
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public friend_get_list(
+    public async friend_get_list(
         params: {
             From_Account: string;
             To_Account: string[];
             TagList: string[];
         },
-        path: string,
+        path: string = 'v4/sns/friend_get_list',
     ): Promise<
         ImResult & {
             InfoItem: {
@@ -732,12 +733,12 @@ export default class ImServerSDK implements ImServer {
             Fail_Account: string[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public black_list_add(
+    public async black_list_add(
         params: { From_Account: string; To_Account: string[] },
-        path: string,
+        path: string = 'v4/sns/black_list_add',
     ): Promise<
         ImResult & {
             ResultItem: {
@@ -747,12 +748,12 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public black_list_delete(
+    public async black_list_delete(
         params: { From_Account: string; To_Account: string[] },
-        path: string,
+        path: string = 'v4/sns/black_list_delete',
     ): Promise<
         ImResult & {
             ResultItem: {
@@ -762,32 +763,32 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public black_list_get(
+    public async black_list_get(
         params: {
             From_Account: string;
             StartIndex: number;
             MaxLimited: number;
             LastSequence: number;
         },
-        path: string,
+        path: string = 'v4/sns/black_list_get',
     ): Promise<
         ImResult & {
             BlackListItem: { To_Account: string; AddBlackTimeStamp: number }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public black_list_check(
+    public async black_list_check(
         params: {
             From_Account: string;
             To_Account: string[];
             CheckType: ImBlackListCheckType;
         },
-        path: string,
+        path: string = 'v4/sns/black_list_check',
     ): Promise<
         ImResult & {
             BlackListItem: {
@@ -798,42 +799,42 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public group_add(
+    public async group_add(
         params: {
             From_Account: string;
             GroupName: string[];
             To_Account?: string[] | undefined;
         },
-        path: string,
+        path: string = 'v4/sns/group_add',
     ): Promise<ImResult & { CurrentSequence: number }> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public group_delete(
+    public async group_delete(
         params: { From_Account: string; GroupName: string[] },
-        path: string,
+        path: string = 'v4/sns/group_delete',
     ): Promise<ImResult & { CurrentSequence: number }> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public group_get(
+    public async group_get(
         params: {
             From_Account: string;
             LastSequence: number;
             NeedFriend?: string | undefined;
             GroupName?: string[] | undefined;
         },
-        path: string,
+        path: string = 'v4/sns/group_get',
     ): Promise<
         ImResult & { ResultItem: { GroupName: string; FriendNumber: number }[] }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public get_list(
+    public async get_list(
         params: {
             From_Account: string;
             TimeStamp: number;
@@ -859,10 +860,10 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public delete(
+    public async delete(
         params: {
             From_Account: string;
             To_Account: string;
@@ -871,10 +872,298 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/recentcontact/delete',
     ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async get_appid_group_list(
+        params: {
+            Limit?: number | undefined;
+            Next?: number | undefined;
+            GroupType: ImGroupType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            TotalCount: number;
+            GroupList: { GroupId: string }[];
+            Next: number;
+        }
+    > {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async create_group(
+        params: {
+            Owner_Account: string;
+            Type: ImGroupType;
+            Name: string;
+            Introduction?: string | undefined;
+            Notification?: string | undefined;
+            FaceUrl?: string | undefined;
+            MaxMemberCount?: number | undefined;
+            ApplyJoinOption?: string | undefined;
+            MemberList: {
+                Member_Account: string;
+                Role?: 'Admin' | undefined;
+                AppMemberDefinedData?:
+                    | { Key: string; Value: string | Buffer }[]
+                    | undefined;
+            }[];
+            GroupId?: string | undefined;
+            AppDefinedData?:
+                | { Key: string; Value: string | Buffer }[]
+                | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async get_group_info(
+        params: {
+            GroupIdList: string[];
+            ResponseFilter?:
+                | {
+                      GroupBaseFilter?: string[] | undefined;
+                      MemberInfoFilter?: string[] | undefined;
+                      AppDefinedDataFilter_Group?: string[] | undefined;
+                      AppDefinedDataFilter_GroupMember?: string[] | undefined;
+                  }
+                | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async get_group_member_info(
+        params: {
+            GroupId: string;
+            Limit?: number | undefined;
+            Offset?: number | undefined;
+            MemberInfoFilter?: string[] | undefined;
+            MemberRoleFilter?: string[] | undefined;
+            AppDefinedDataFilter_GroupMember?: string[] | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async modify_group_base_info(
+        params: {
+            GroupId: string;
+            Name?: string | undefined;
+            Introduction?: string | undefined;
+            Notification?: string | undefined;
+            FaceUrl?: string | undefined;
+            MaxMemberCount?: number | undefined;
+            ApplyJoinOption?: string | undefined;
+            ShutUpAllMember?: 'On' | 'Off' | undefined;
+            AppDefinedData?:
+                | { Key: string; Value: string | Buffer }[]
+                | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async add_group_member(
+        params: {
+            GroupId: string;
+            MemberList: { Member_Account: string }[];
+            Silence?: number | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async delete_group_member(
+        params: {
+            GroupId: string;
+            MemberToDel_Account: string[];
+            Silence?: number | undefined;
+            Reason?: string | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async modify_group_member_info(
+        params: {
+            GroupId: string;
+            Member_Account: string;
+            Role?: 'Admin' | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public destroy_group(
+        params: { GroupId: string },
+        path: string,
+    ): Promise<ImResult> {
         return this.request({ method: 'POST', path, data: params });
     }
 
-    public setnospeaking(
+    public async get_joined_group_list(
+        params: {
+            Member_Account: string;
+            Limit?: number | undefined;
+            Offset?: number | undefined;
+            GroupType?: ImGroupType | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async get_role_in_group(
+        params: { GroupId: string; User_Account: string[] },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async forbid_send_msg(
+        params: {
+            GroupId: string;
+            Members_Account: string[];
+            ShutUpTime: number;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async get_group_shutted_uin(
+        params: { GroupId: string },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async send_group_msg(
+        params: {
+            GroupId: string;
+            From_Account: string;
+            Random: number;
+            MsgBody: ImMsgBody[];
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async send_group_system_notification(
+        params: {
+            GroupId: string;
+            Content: string;
+            ToMembers_Account?: string[] | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async change_group_owner(
+        params: { GroupId: string; NewOwner_Account: string },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async group_msg_recall(
+        params: { GroupId: string; MsgSeqList: { MsgSeq: number }[] },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async import_group(
+        params: {
+            Owner_Account: string;
+            Type: ImGroupType;
+            Name: string;
+            CreateTime?: number | undefined;
+            Introduction?: string | undefined;
+            Notification?: string | undefined;
+            FaceUrl?: string | undefined;
+            MaxMemberCount?: number | undefined;
+            ApplyJoinOption?: string | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async import_group_msg(
+        params: {
+            GroupId: string;
+            RecentContactFlag: number;
+            MsgList: ImMsgBody[];
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async import_group_member(
+        params: {
+            GroupId: string;
+            MemberList: {
+                Member_Account: string;
+                Role?: string | undefined;
+                JoinTime?: number | undefined;
+                UnreadMsgNum?: number | undefined;
+            }[];
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async set_unread_msg_num(
+        params: {
+            GroupId: string;
+            Member_Account: string;
+            UnreadMsgNum: number;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async delete_group_msg_by_sender(
+        params: { GroupId: string; Sender_Account: string },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async group_msg_get_simple(
+        params: {
+            GroupId: string;
+            ReqMsgNumber: number;
+            ReqMsgSeq?: number | undefined;
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async get_online_member_num(
+        params: { GroupId: string },
+        path: string,
+    ): Promise<ImResult> {
+        return await this.request({ method: 'POST', path, data: params });
+    }
+
+    public async setnospeaking(
         params: {
             Set_Account: string;
             C2CmsgNospeakingTime: number;
@@ -882,10 +1171,10 @@ export default class ImServerSDK implements ImServer {
         },
         path: string = 'v4/openconfigsvr/setnospeaking',
     ): Promise<ImResult> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public getnospeaking(
+    public async getnospeaking(
         params: { Get_Account: string },
         path: string = 'v4/openconfigsvr/getnospeaking',
     ): Promise<
@@ -894,17 +1183,17 @@ export default class ImServerSDK implements ImServer {
             GroupmsgNospeakingTime: number;
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public getappinfo(
+    public async getappinfo(
         params: { RequestField?: string[] | undefined },
         path: string = 'v4/openconfigsvr/getappinfo',
     ): Promise<ImResult & { Result: { APNSMsgNum: string }[] }> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public get_history(
+    public async get_history(
         params: { ChatType: string; MsgTime: number },
         path: string = 'v4/open_msg_svc/get_history',
     ): Promise<
@@ -919,13 +1208,13 @@ export default class ImServerSDK implements ImServer {
             }[];
         }
     > {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 
-    public GetIPList(
+    public async GetIPList(
         params: {},
         path: string = 'v4/ConfigSvc/GetIPList',
     ): Promise<ImResult & { IPList: string[] }> {
-        return this.request({ method: 'POST', path, data: params });
+        return await this.request({ method: 'POST', path, data: params });
     }
 }

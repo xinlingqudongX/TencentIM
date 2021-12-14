@@ -631,55 +631,268 @@ export interface ImServer {
         path: string,
     ): Promise<ImResult>;
 
-    // //  #群组管理
-    // //  获取APP中的所有群组
-    // get_appid_group_list();
-    // //  创建群组
-    // create_group();
-    // //  获取群消息资料
-    // get_group_info();
-    // //  获取群成员详细资料
-    // get_group_member_info();
-    // //  修改群基础资料
-    // modify_group_base_info();
-    // //  增加群成员
-    // add_group_member();
-    // //  删除群成员
-    // delete_group_member();
-    // //  修改群成员资料
-    // modify_group_member_info();
-    // //  解散群组
-    // destroy_group()
-    // //  获取用户所加入的群组
-    // get_joined_group_list();
-    // //  查询用户在群组中的身份
-    // get_role_in_group();
-    // //  批量禁言和取消禁言
-    // forbid_send_msg();
-    // //  获取被禁言群成员列表
-    // get_group_shutted_uin();
-    // //  在群组中发送普通消息
-    // send_group_msg();
-    // //  在群组中发送系统通知
-    // send_group_system_notification();
-    // //  转让群主
-    // change_group_owner();
-    // //  撤回群消息
-    // group_msg_recall();
-    // //  导入群基础资料
-    // import_group();
-    // //  导入群消息
-    // import_group_msg();
-    // //  导入群成员
-    // import_group_member();
-    // //  设置成员未读消息计数
-    // set_unread_msg_num();
-    // //  撤回指定用户发送的消息
-    // delete_group_msg_by_sender();
-    // //  拉取群历史消息
-    // group_msg_get_simple();
-    // //  获取直播群的在线人数
-    // get_online_member_num();
+    //  #群组管理
+    //  获取APP中的所有群组
+    get_appid_group_list(
+        params: {
+            Limit?: number;
+            Next?: number;
+            GroupType: ImGroupType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            TotalCount: number;
+            GroupList: Array<{ GroupId: string }>;
+            Next: number;
+        }
+    >;
+    //  创建群组
+    create_group(
+        params: {
+            Owner_Account: string;
+            Type: ImGroupType;
+            Name: string;
+            Introduction?: string; //    群组简介
+            Notification?: string; //    群公告
+            FaceUrl?: string; //    群头像URL
+            MaxMemberCount?: number; //    群组最大成员数
+            ApplyJoinOption?: string; //    申请加群处理方式
+            MemberList: Array<{
+                Member_Account: string;
+                Role?: 'Admin';
+                AppMemberDefinedData?: Array<{
+                    Key: string;
+                    Value: string | Buffer;
+                }>;
+            }>;
+            GroupId?: string;
+            AppDefinedData?: Array<{
+                Key: string;
+                Value: string | Buffer;
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取群消息资料
+    get_group_info(
+        params: {
+            GroupIdList: Array<string>;
+            ResponseFilter?: {
+                GroupBaseFilter?: Array<string>;
+                MemberInfoFilter?: Array<string>;
+                AppDefinedDataFilter_Group?: Array<string>;
+                AppDefinedDataFilter_GroupMember?: Array<string>;
+            };
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取群成员详细资料
+    get_group_member_info(
+        params: {
+            GroupId: string;
+            Limit?: number;
+            Offset?: number;
+            MemberInfoFilter?: Array<string>;
+            MemberRoleFilter?: Array<string>;
+            AppDefinedDataFilter_GroupMember?: Array<string>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  修改群基础资料
+    modify_group_base_info(
+        params: {
+            GroupId: string;
+            Name?: string;
+            Introduction?: string; //    群组简介
+            Notification?: string; //    群公告
+            FaceUrl?: string; //    群头像URL
+            MaxMemberCount?: number; //    群组最大成员数
+            ApplyJoinOption?: string; //    申请加群处理方式
+            ShutUpAllMember?: 'On' | 'Off';
+            AppDefinedData?: Array<{
+                Key: string;
+                Value: string | Buffer;
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  增加群成员
+    add_group_member(
+        params: {
+            GroupId: string;
+            MemberList: Array<{
+                Member_Account: string;
+            }>;
+            Silence?: number; // 是否静默加人
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  删除群成员
+    delete_group_member(
+        params: {
+            GroupId: string;
+            MemberToDel_Account: Array<string>;
+            Silence?: number; // 是否静默删人
+            Reason?: string; //  删人原因
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  修改群成员资料
+    modify_group_member_info(
+        params: {
+            GroupId: string;
+            Member_Account: string;
+            Role?: 'Admin';
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  解散群组
+    destroy_group(
+        params: {
+            GroupId: string;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取用户所加入的群组
+    get_joined_group_list(
+        params: {
+            Member_Account: string;
+            Limit?: number;
+            Offset?: number;
+            GroupType?: ImGroupType;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  查询用户在群组中的身份
+    get_role_in_group(
+        params: {
+            GroupId: string;
+            User_Account: Array<string>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  批量禁言和取消禁言
+    forbid_send_msg(
+        params: {
+            GroupId: string;
+            Members_Account: Array<string>;
+            ShutUpTime: number; //  为0时表示取消禁言
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取被禁言群成员列表
+    get_group_shutted_uin(
+        params: {
+            GroupId: string;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  在群组中发送普通消息
+    send_group_msg(
+        params: {
+            GroupId: string;
+            From_Account: string;
+            Random: number;
+            MsgBody: Array<ImMsgBody>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  在群组中发送系统通知
+    send_group_system_notification(
+        params: {
+            GroupId: string;
+            Content: string;
+            ToMembers_Account?: Array<string>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  转让群主
+    change_group_owner(
+        params: {
+            GroupId: string;
+            NewOwner_Account: string;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  撤回群消息
+    group_msg_recall(
+        params: {
+            GroupId: string;
+            MsgSeqList: Array<{ MsgSeq: number }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  导入群基础资料
+    import_group(
+        params: {
+            Owner_Account: string;
+            Type: ImGroupType;
+            Name: string;
+            CreateTime?: number;
+            Introduction?: string; //    群组简介
+            Notification?: string; //    群公告
+            FaceUrl?: string; //    群头像URL
+            MaxMemberCount?: number; //    群组最大成员数
+            ApplyJoinOption?: string; //    申请加群处理方式
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  导入群消息
+    import_group_msg(
+        params: {
+            GroupId: string;
+            RecentContactFlag: number;
+            MsgList: Array<ImMsgBody>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  导入群成员
+    import_group_member(
+        params: {
+            GroupId: string;
+            MemberList: Array<{
+                Member_Account: string;
+                Role?: string;
+                JoinTime?: number;
+                UnreadMsgNum?: number;
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  设置成员未读消息计数
+    set_unread_msg_num(
+        params: {
+            GroupId: string;
+            Member_Account: string;
+            UnreadMsgNum: number;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  撤回指定用户发送的消息
+    delete_group_msg_by_sender(
+        params: {
+            GroupId: string;
+            Sender_Account: string;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  拉取群历史消息
+    group_msg_get_simple(
+        params: {
+            GroupId: string;
+            ReqMsgNumber: number;
+            ReqMsgSeq?: number;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取直播群的在线人数
+    get_online_member_num(
+        params: {
+            GroupId: string;
+        },
+        path: string,
+    ): Promise<ImResult>;
 
     //  #全局禁言管理
     //  设置全局禁言
@@ -910,4 +1123,13 @@ export enum ImFriendCheckType {
 export enum ImBlackListCheckType {
     单向检验黑名单关系 = 'BlackCheckResult_Type_Single',
     双向检验黑名单关系 = 'BlackCheckResult_Type_Both',
+}
+
+//  群组类型
+export enum ImGroupType {
+    好友工作群 = 'Private',
+    公开群 = 'Public',
+    会议群 = 'ChatRoom',
+    音视频聊天室 = 'AVChatRoom',
+    在线成员广播大群 = 'Community',
 }
