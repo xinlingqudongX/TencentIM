@@ -3,7 +3,17 @@ import Axios from 'axios';
 import { AxiosResponse } from 'axios';
 import * as tencentCloud from 'tencentcloud-sdk-nodejs';
 import Zlib from 'zlib';
-import { ImMsgParams, ImResult, ImServer } from 'define_type';
+import {
+    ImBlackListCheckType,
+    ImFriendCheckType,
+    ImFriendDeleteType,
+    ImMsgBody,
+    ImMsgParams,
+    ImProfileTag,
+    ImResult,
+    ImServer,
+    offlinePushInfo,
+} from 'define_type';
 
 export default class ImServerSDK implements ImServer {
     public config: {
@@ -442,6 +452,480 @@ export default class ImServerSDK implements ImServer {
         params: { To_Account: string },
         path: string,
     ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_push(
+        params: {
+            From_Account: string;
+            MsgRandom: number;
+            MsgBody: ImMsgBody | ImMsgBody[];
+            Condition: {
+                TagsAnd?: string[] | undefined;
+                TagsOr?: string[] | undefined;
+                AttrsAnd?: { [key: string]: string } | undefined;
+                AttrsOr?: { [key: string]: string } | undefined;
+            };
+            offlinePushInfo?: offlinePushInfo | undefined;
+        },
+        path: string = 'v4/all_member_push/im_push',
+    ): Promise<ImResult & { TaskId: string }> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_set_attr_name(
+        params: { AttrNames: { [key: string]: string } },
+        path: string = 'v4/all_member_push/im_set_attr_name',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_get_attr_name(
+        params: {},
+        path: string = 'v4/all_member_push/im_get_attr_name',
+    ): Promise<ImResult & { AttrNames: { [key: string]: string } }> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_get_attr(
+        params: { To_Account: string[] },
+        path: string = 'v4/all_member_push/im_get_attr',
+    ): Promise<
+        ImResult & {
+            UserAttrs: {
+                To_Account: string;
+                Attrs: { [key: string]: string };
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_set_attr(
+        params: {
+            UserAttrs: {
+                To_Account: string;
+                Attrs: { [key: string]: string };
+            }[];
+        },
+        path: string = 'v4/all_member_push/im_set_attr',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_remove_attr(
+        params: { UserAttrs: { To_Account: string; Attrs: string[] }[] },
+        path: string = 'v4/all_member_push/im_remove_attr',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_get_tag(
+        params: { To_Account: string[] },
+        path: string = 'v4/all_member_push/im_get_tag',
+    ): Promise<
+        ImResult & { UserTags: { To_Account: string; Tags: string[] }[] }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_add_tag(
+        params: { UserTags: { To_Account: string; Tags: string[] }[] },
+        path: string = 'v4/all_member_push/im_add_tag',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_remove_tag(
+        params: { UserTags: { To_Account: string; Tags: string[] }[] },
+        path: string = 'v4/all_member_push/im_remove_tag',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public im_remove_all_tags(
+        params: { To_Account: string[] },
+        path: string = 'v4/all_member_push/im_remove_all_tags',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public portrait_set(
+        params: {
+            From_Account: string;
+            ProfileItem: {
+                Tag: ImProfileTag;
+                Value: string | number | Buffer;
+            }[];
+        },
+        path: string = 'v4/profile/portrait_set',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public portrait_get(
+        params: { To_Account: string[]; TagList: ImProfileTag[] },
+        path: string = 'v4/profile/portrait_get',
+    ): Promise<
+        ImResult & {
+            UserProfileItem: {
+                To_Account: string;
+                ProfileItem: {
+                    Tag: ImProfileTag;
+                    Value: string | number | Buffer;
+                }[];
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_add(
+        params: {
+            From_Account: string;
+            AddFriendItem: {
+                To_Account: string;
+                AddSource: string;
+                GroupName?: string | undefined;
+                Remark?: string | undefined;
+                AddWording?: string | undefined;
+            }[];
+        },
+        path: string,
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_import(
+        params: {
+            From_Account: string;
+            AddFriendItem: {
+                To_Account: string;
+                AddSource: string;
+                GroupName?: string | undefined;
+                Remark?: string | undefined;
+                AddWording?: string | undefined;
+                CustomItem?:
+                    | { Tag: string; Value: string | number }[]
+                    | undefined;
+            }[];
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: {
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+            Fail_Account: string[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_update(
+        params: {
+            From_Account: string;
+            UpdateItem: {
+                To_Account: string;
+                SnsItem: { Tag: string; Value: string | number }[];
+            }[];
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: {
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+            Fail_Account: string[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_delete(
+        params: {
+            From_Account: string;
+            To_Account: string[];
+            DeleteType: ImFriendDeleteType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: {
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_delete_all(
+        params: { From_Account: string; DeleteType: ImFriendDeleteType },
+        path: string,
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_check(
+        params: {
+            From_Account: string;
+            To_Account: string[];
+            CheckType: ImFriendCheckType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            InfoItem: {
+                To_Account: string;
+                Relation: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_get(
+        params: {
+            From_Account: string;
+            StartIndex: number;
+            StandardSequence?: number | undefined;
+            CustomSequence?: number | undefined;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            UserDataItem: {
+                To_Account: string;
+                ValueItem: { Tag: string; Value: string | number }[];
+            }[];
+            StandardSequence: number;
+            CustomSequence: number;
+            FriendNum: number;
+            CompleteFlag: number;
+            NextStartIndex: number;
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public friend_get_list(
+        params: {
+            From_Account: string;
+            To_Account: string[];
+            TagList: string[];
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            InfoItem: {
+                To_Account: string;
+                SnsProfileItem: { Tag: string; Value: string | number }[];
+            }[];
+            Fail_Account: string[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public black_list_add(
+        params: { From_Account: string; To_Account: string[] },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: {
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public black_list_delete(
+        params: { From_Account: string; To_Account: string[] },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: {
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public black_list_get(
+        params: {
+            From_Account: string;
+            StartIndex: number;
+            MaxLimited: number;
+            LastSequence: number;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            BlackListItem: { To_Account: string; AddBlackTimeStamp: number }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public black_list_check(
+        params: {
+            From_Account: string;
+            To_Account: string[];
+            CheckType: ImBlackListCheckType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            BlackListItem: {
+                To_Account: string;
+                Relation: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public group_add(
+        params: {
+            From_Account: string;
+            GroupName: string[];
+            To_Account?: string[] | undefined;
+        },
+        path: string,
+    ): Promise<ImResult & { CurrentSequence: number }> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public group_delete(
+        params: { From_Account: string; GroupName: string[] },
+        path: string,
+    ): Promise<ImResult & { CurrentSequence: number }> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public group_get(
+        params: {
+            From_Account: string;
+            LastSequence: number;
+            NeedFriend?: string | undefined;
+            GroupName?: string[] | undefined;
+        },
+        path: string,
+    ): Promise<
+        ImResult & { ResultItem: { GroupName: string; FriendNumber: number }[] }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public get_list(
+        params: {
+            From_Account: string;
+            TimeStamp: number;
+            StartIndex: number;
+            TopTimeStamp: number;
+            TopStartIndex: number;
+            AssistFlags: number;
+        },
+        path: string = 'v4/recentcontact/get_list',
+    ): Promise<
+        ImResult & {
+            CompleteFlag: number;
+            TimeStamp: number;
+            StartIndex: number;
+            TopTimeStamp: number;
+            TopStartIndex: number;
+            SessionItem: {
+                Type: number;
+                To_Account?: string | undefined;
+                MsgTime: number;
+                TopFlag: number;
+                GoupId?: string | undefined;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public delete(
+        params: {
+            From_Account: string;
+            To_Account: string;
+            Type: number;
+            ClearRamble: number;
+        },
+        path: string = 'v4/recentcontact/delete',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public setnospeaking(
+        params: {
+            Set_Account: string;
+            C2CmsgNospeakingTime: number;
+            GroupmsgNospeakingTime: number;
+        },
+        path: string = 'v4/openconfigsvr/setnospeaking',
+    ): Promise<ImResult> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public getnospeaking(
+        params: { Get_Account: string },
+        path: string = 'v4/openconfigsvr/getnospeaking',
+    ): Promise<
+        ImResult & {
+            C2CmsgNospeakingTime: number;
+            GroupmsgNospeakingTime: number;
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public getappinfo(
+        params: { RequestField?: string[] | undefined },
+        path: string = 'v4/openconfigsvr/getappinfo',
+    ): Promise<ImResult & { Result: { APNSMsgNum: string }[] }> {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public get_history(
+        params: { ChatType: string; MsgTime: number },
+        path: string = 'v4/open_msg_svc/get_history',
+    ): Promise<
+        ImResult & {
+            File: {
+                URL: string;
+                ExpieTime: string;
+                FileSize: number;
+                FileMD5: string;
+                GzipSize: number;
+                GzipMD5: string;
+            }[];
+        }
+    > {
+        return this.request({ method: 'POST', path, data: params });
+    }
+
+    public GetIPList(
+        params: {},
+        path: string = 'v4/ConfigSvc/GetIPList',
+    ): Promise<ImResult & { IPList: string[] }> {
         return this.request({ method: 'POST', path, data: params });
     }
 }

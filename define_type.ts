@@ -208,71 +208,428 @@ export interface ImServer {
         path: string,
     ): Promise<ImResult>;
 
-    // //  #全员推送
-    // //  全员推送
-    // im_push();
-    // //  设置应用属性名称
-    // im_set_attr_name();
-    // //  获取应用属性名称
-    // im_get_attr_name();
-    // //  获取用户属性
-    // im_get_attr();
-    // //  设置用户属性
-    // im_set_attr();
-    // //  删除用户属性
-    // im_remove_attr();
-    // //  获取用户标签
-    // im_get_tag();
-    // //  添加用户标签
-    // im_add_tag();
-    // //  删除用户标签
-    // im_remove_tag();
-    // //  删除用户所有标签
-    // im_remove_all_tags();
+    //  #全员推送
+    //  全员推送
+    im_push(
+        params: {
+            From_Account: string;
+            MsgRandom: number;
+            MsgBody: ImMsgBody | Array<ImMsgBody>;
+            Condition: {
+                TagsAnd?: Array<string>;
+                TagsOr?: Array<string>;
+                AttrsAnd?: { [key: string]: string };
+                AttrsOr?: { [key: string]: string };
+            };
+            offlinePushInfo?: offlinePushInfo;
+        },
+        path: string,
+    ): Promise<ImResult & { TaskId: string }>;
+    //  设置应用属性名称
+    im_set_attr_name(
+        params: { AttrNames: { [key: string]: string } },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取应用属性名称
+    im_get_attr_name(
+        params: {},
+        path: string,
+    ): Promise<ImResult & { AttrNames: { [key: string]: string } }>;
+    //  获取用户属性
+    im_get_attr(
+        params: { To_Account: Array<string> },
+        path: string,
+    ): Promise<
+        ImResult & {
+            UserAttrs: Array<{
+                To_Account: string;
+                Attrs: { [key: string]: string };
+            }>;
+        }
+    >;
+    //  设置用户属性
+    im_set_attr(
+        params: {
+            UserAttrs: Array<{
+                To_Account: string;
+                Attrs: { [key: string]: string };
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  删除用户属性
+    im_remove_attr(
+        params: {
+            UserAttrs: Array<{ To_Account: string; Attrs: Array<string> }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  获取用户标签
+    im_get_tag(
+        params: {
+            To_Account: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            UserTags: Array<{
+                To_Account: string;
+                Tags: Array<string>;
+            }>;
+        }
+    >;
+    //  添加用户标签
+    im_add_tag(
+        params: {
+            UserTags: Array<{
+                To_Account: string;
+                Tags: Array<string>;
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  删除用户标签
+    im_remove_tag(
+        params: {
+            UserTags: Array<{ To_Account: string; Tags: Array<string> }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  删除用户所有标签
+    im_remove_all_tags(
+        params: { To_Account: Array<string> },
+        path: string,
+    ): Promise<ImResult>;
 
-    // //  #资料管理
-    // //  设置资料
-    // portrait_set();
-    // //  拉取资料
-    // portrait_get();
+    //  #资料管理
+    //  设置资料
+    portrait_set(
+        params: {
+            From_Account: string;
+            ProfileItem: Array<{
+                Tag: ImProfileTag;
+                Value: string | number | Buffer;
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  拉取资料
+    portrait_get(
+        params: { To_Account: Array<string>; TagList: Array<ImProfileTag> },
+        path: string,
+    ): Promise<
+        ImResult & {
+            UserProfileItem: Array<{
+                To_Account: string;
+                ProfileItem: Array<{
+                    Tag: ImProfileTag;
+                    Value: string | number | Buffer;
+                }>;
+            }>;
+        }
+    >;
 
-    // //  #关系链管理
-    // //  添加好友
-    // friend_add();
-    // //  导入好友
-    // friend_import();
-    // //  更新好友
-    // friend_update();
-    // //  删除好友
-    // friend_delete();
-    // //  删除所有好友
-    // friend_delete_all();
-    // //  校验好友
-    // friend_check();
-    // //  拉取好友
-    // friend_get();
-    // //  拉取指定好友
-    // friend_get_list();
-    // //  添加黑名单
-    // black_list_add();
-    // //  删除黑名单
-    // black_list_delete();
-    // //  拉取黑名单
-    // black_list_get();
-    // //  校验黑名单
-    // black_list_check();
-    // //  添加分组
-    // group_add();
-    // //  删除分组
-    // group_delete();
-    // //  拉取分组
-    // group_get();
+    //  #关系链管理
+    //  添加好友
+    friend_add(
+        params: {
+            From_Account: string;
+            AddFriendItem: Array<{
+                To_Account: string;
+                AddSource: string;
+                GroupName?: string;
+                Remark?: string;
+                AddWording?: string;
+            }>;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  导入好友
+    friend_import(
+        params: {
+            From_Account: string;
+            AddFriendItem: Array<{
+                To_Account: string;
+                AddSource: string;
+                GroupName?: string;
+                Remark?: string;
+                AddWording?: string;
+                CustomItem?: Array<{
+                    Tag: string;
+                    Value: string | number;
+                }>;
+            }>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: Array<{
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+            Fail_Account: Array<string>;
+        }
+    >;
+    //  更新好友
+    friend_update(
+        params: {
+            From_Account: string;
+            UpdateItem: Array<{
+                To_Account: string;
+                SnsItem: Array<{
+                    Tag: string;
+                    Value: string | number;
+                }>;
+            }>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: Array<{
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+            Fail_Account: Array<string>;
+        }
+    >;
+    //  删除好友
+    friend_delete(
+        params: {
+            From_Account: string;
+            To_Account: Array<string>;
+            DeleteType: ImFriendDeleteType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: Array<{
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+        }
+    >;
+    //  删除所有好友
+    friend_delete_all(
+        params: {
+            From_Account: string;
+            DeleteType: ImFriendDeleteType;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  校验好友
+    friend_check(
+        params: {
+            From_Account: string;
+            To_Account: Array<string>;
+            CheckType: ImFriendCheckType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            InfoItem: Array<{
+                To_Account: string;
+                Relation: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+        }
+    >;
+    //  拉取好友
+    friend_get(
+        params: {
+            From_Account: string;
+            StartIndex: number;
+            StandardSequence?: number;
+            CustomSequence?: number;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            UserDataItem: Array<{
+                To_Account: string;
+                ValueItem: Array<{
+                    Tag: string;
+                    Value: string | number;
+                }>;
+            }>;
+            StandardSequence: number;
+            CustomSequence: number;
+            FriendNum: number;
+            CompleteFlag: number;
+            NextStartIndex: number;
+        }
+    >;
+    //  拉取指定好友
+    friend_get_list(
+        params: {
+            From_Account: string;
+            To_Account: Array<string>;
+            TagList: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            InfoItem: Array<{
+                To_Account: string;
+                SnsProfileItem: Array<{
+                    Tag: string;
+                    Value: string | number;
+                }>;
+            }>;
+            Fail_Account: Array<string>;
+        }
+    >;
+    //  添加黑名单
+    black_list_add(
+        params: {
+            From_Account: string;
+            To_Account: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: Array<{
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+        }
+    >;
+    //  删除黑名单
+    black_list_delete(
+        params: {
+            From_Account: string;
+            To_Account: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: Array<{
+                To_Account: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+        }
+    >;
+    //  拉取黑名单
+    black_list_get(
+        params: {
+            From_Account: string;
+            StartIndex: number;
+            MaxLimited: number;
+            LastSequence: number;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            BlackListItem: Array<{
+                To_Account: string;
+                AddBlackTimeStamp: number;
+            }>;
+        }
+    >;
+    //  校验黑名单
+    black_list_check(
+        params: {
+            From_Account: string;
+            To_Account: Array<string>;
+            CheckType: ImBlackListCheckType;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            BlackListItem: Array<{
+                To_Account: string;
+                Relation: string;
+                ResultCode: number;
+                ResultInfo: string;
+            }>;
+        }
+    >;
+    //  添加分组
+    group_add(
+        params: {
+            From_Account: string;
+            GroupName: Array<string>;
+            To_Account?: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            CurrentSequence: number;
+        }
+    >;
+    //  删除分组
+    group_delete(
+        params: {
+            From_Account: string;
+            GroupName: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            CurrentSequence: number;
+        }
+    >;
+    //  拉取分组
+    group_get(
+        params: {
+            From_Account: string;
+            LastSequence: number;
+            NeedFriend?: string;
+            GroupName?: Array<string>;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            ResultItem: Array<{
+                GroupName: string;
+                FriendNumber: number;
+            }>;
+        }
+    >;
 
-    // //  #最近联系人
-    // //  拉取会话列表
-    // get_list();
-    // //  删除单个会话
-    // delete();
+    //  #最近联系人
+    //  拉取会话列表
+    get_list(
+        params: {
+            From_Account: string;
+            TimeStamp: number;
+            StartIndex: number;
+            TopTimeStamp: number;
+            TopStartIndex: number;
+            AssistFlags: number;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            CompleteFlag: number;
+            TimeStamp: number;
+            StartIndex: number;
+            TopTimeStamp: number;
+            TopStartIndex: number;
+            SessionItem: Array<{
+                Type: number;
+                To_Account?: string;
+                MsgTime: number;
+                TopFlag: number;
+                GoupId?: string;
+            }>;
+        }
+    >;
+    //  删除单个会话
+    delete(
+        params: {
+            From_Account: string;
+            To_Account: string;
+            Type: number;
+            ClearRamble: number;
+        },
+        path: string,
+    ): Promise<ImResult>;
 
     // //  #群组管理
     // //  获取APP中的所有群组
@@ -324,25 +681,68 @@ export interface ImServer {
     // //  获取直播群的在线人数
     // get_online_member_num();
 
-    // //  #全局禁言管理
-    // //  设置全局禁言
-    // setnospeaking();
-    // //  查询全局禁言
-    // getnospeaking();
+    //  #全局禁言管理
+    //  设置全局禁言
+    setnospeaking(
+        params: {
+            Set_Account: string;
+            C2CmsgNospeakingTime: number;
+            GroupmsgNospeakingTime: number;
+        },
+        path: string,
+    ): Promise<ImResult>;
+    //  查询全局禁言
+    getnospeaking(
+        params: {
+            Get_Account: string;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            C2CmsgNospeakingTime: number;
+            GroupmsgNospeakingTime: number;
+        }
+    >;
 
-    // //  #运营管理
-    // //  拉取运营数据
-    // getappinfo();
-    // //  下载最近消息记录
-    // get_history();
-    // //  获取服务器IP地址
-    // GetIPList();
+    //  #运营管理
+    //  拉取运营数据
+    getappinfo(
+        params: {
+            RequestField?: Array<string>;
+        },
+        path: string,
+    ): Promise<ImResult & { Result: Array<{ APNSMsgNum: string }> }>;
+    //  下载最近消息记录
+    get_history(
+        params: {
+            ChatType: string;
+            MsgTime: number;
+        },
+        path: string,
+    ): Promise<
+        ImResult & {
+            File: Array<{
+                URL: string;
+                ExpieTime: string;
+                FileSize: number;
+                FileMD5: string;
+                GzipSize: number;
+                GzipMD5: string;
+            }>;
+        }
+    >;
+    //  获取服务器IP地址
+    GetIPList(
+        params: {},
+        path: string,
+    ): Promise<ImResult & { IPList: Array<string> }>;
 }
 
 export interface ImResult {
     ActionStatus: 'OK' | 'FAIL';
     ErrorInfo: string;
     ErrorCode: number;
+    ErrorDisplay?: string; // 详细的客户端展示信息
 }
 
 //  IM消息类型
@@ -461,4 +861,53 @@ export interface ImMsgParams {
             Image: string; //    图片地址
         };
     };
+}
+
+export interface offlinePushInfo {
+    PushFlag: number;
+    Desc: string; // 离线推送内容
+    Ext: string; // 离线推送透传
+    AndroidInfo: {
+        Sound: string; // 铃音
+    };
+    ApnsInfo: {
+        Sound: string; // 推送声音
+        BadgeMode: number; // 0计数 1 不计数
+        Title: string; // 推送标题
+        SubTitle: string; // 副标题
+        Image: string; //    图片地址
+    };
+}
+
+export enum ImProfileTag {
+    昵称 = 'Tag_Profile_IM_Nick',
+    性别 = 'Tag_Profile_IM_Gender',
+    生日 = 'Tag_Profile_IM_BirthDay',
+    所在地 = 'Tag_Profile_IM_Location',
+    个性签名 = 'Tag_Profile_IM_SelfSignature',
+    加好友验证方式 = 'Tag_Profile_IM_AllowType',
+    语言 = 'Tag_Profile_IM_Language',
+    头像URL = 'Tag_Profile_IM_Image',
+    消息设置 = 'Tag_Profile_IM_MsgSettings',
+    管理员禁止加好友标识 = 'Tag_Profile_IM_AdminForbidType',
+    等级 = 'Tag_Profile_IM_Level',
+    角色 = 'Tag_Profile_IM_Role',
+}
+
+//  删除好友
+export enum ImFriendDeleteType {
+    单向删除好友 = 'Delete_Type_Single',
+    双向删除好友 = 'ImFriendDeleteTypeBoth',
+}
+
+//  校验好友
+export enum ImFriendCheckType {
+    单向检验好友关系 = 'CheckResult_Type_Single',
+    双向检验好友关系 = 'CheckResult_Type_Both',
+}
+
+//  校验黑名单
+export enum ImBlackListCheckType {
+    单向检验黑名单关系 = 'BlackCheckResult_Type_Single',
+    双向检验黑名单关系 = 'BlackCheckResult_Type_Both',
 }
