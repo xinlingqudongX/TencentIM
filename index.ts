@@ -592,7 +592,7 @@ export default class ImServerSDK implements ImServer {
                 AddWording?: string | undefined;
             }[];
         },
-        path: string,
+        path: string = 'v4/sns/friend_add',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -611,7 +611,7 @@ export default class ImServerSDK implements ImServer {
                     | undefined;
             }[];
         },
-        path: string,
+        path: string = 'v4/sns/friend_import',
     ): Promise<
         ImResult & {
             ResultItem: {
@@ -633,7 +633,7 @@ export default class ImServerSDK implements ImServer {
                 SnsItem: { Tag: string; Value: string | number }[];
             }[];
         },
-        path: string,
+        path: string = 'v4/sns/friend_update',
     ): Promise<
         ImResult & {
             ResultItem: {
@@ -653,7 +653,7 @@ export default class ImServerSDK implements ImServer {
             To_Account: string[];
             DeleteType: ImFriendDeleteType;
         },
-        path: string,
+        path: string = 'v4/sns/friend_delete',
     ): Promise<
         ImResult & {
             ResultItem: {
@@ -668,7 +668,7 @@ export default class ImServerSDK implements ImServer {
 
     public async friend_delete_all(
         params: { From_Account: string; DeleteType: ImFriendDeleteType },
-        path: string,
+        path: string = 'v4/sns/friend_delete_all',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -881,7 +881,7 @@ export default class ImServerSDK implements ImServer {
             Next?: number | undefined;
             GroupType: ImGroupType;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_appid_group_list',
     ): Promise<
         ImResult & {
             TotalCount: number;
@@ -914,7 +914,7 @@ export default class ImServerSDK implements ImServer {
                 | { Key: string; Value: string | Buffer }[]
                 | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/create_group',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -931,7 +931,7 @@ export default class ImServerSDK implements ImServer {
                   }
                 | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_group_info',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -945,7 +945,7 @@ export default class ImServerSDK implements ImServer {
             MemberRoleFilter?: string[] | undefined;
             AppDefinedDataFilter_GroupMember?: string[] | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_group_member_info',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -964,7 +964,7 @@ export default class ImServerSDK implements ImServer {
                 | { Key: string; Value: string | Buffer }[]
                 | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/modify_group_base_info',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -975,7 +975,7 @@ export default class ImServerSDK implements ImServer {
             MemberList: { Member_Account: string }[];
             Silence?: number | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/add_group_member',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -987,7 +987,7 @@ export default class ImServerSDK implements ImServer {
             Silence?: number | undefined;
             Reason?: string | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/delete_group_member',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -998,14 +998,14 @@ export default class ImServerSDK implements ImServer {
             Member_Account: string;
             Role?: 'Admin' | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/modify_group_member_info',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public destroy_group(
         params: { GroupId: string },
-        path: string,
+        path: string = 'v4/group_open_http_svc/destroy_group',
     ): Promise<ImResult> {
         return this.request({ method: 'POST', path, data: params });
     }
@@ -1017,14 +1017,14 @@ export default class ImServerSDK implements ImServer {
             Offset?: number | undefined;
             GroupType?: ImGroupType | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_joined_group_list',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public async get_role_in_group(
         params: { GroupId: string; User_Account: string[] },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_role_in_group',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1035,14 +1035,14 @@ export default class ImServerSDK implements ImServer {
             Members_Account: string[];
             ShutUpTime: number;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/forbid_send_msg',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public async get_group_shutted_uin(
         params: { GroupId: string },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_group_shutted_uin',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1054,7 +1054,7 @@ export default class ImServerSDK implements ImServer {
             Random: number;
             MsgBody: ImMsgBody[];
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/send_group_msg',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1065,21 +1065,21 @@ export default class ImServerSDK implements ImServer {
             Content: string;
             ToMembers_Account?: string[] | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/send_group_system_notification',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public async change_group_owner(
         params: { GroupId: string; NewOwner_Account: string },
-        path: string,
+        path: string = 'v4/group_open_http_svc/change_group_owner',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public async group_msg_recall(
         params: { GroupId: string; MsgSeqList: { MsgSeq: number }[] },
-        path: string,
+        path: string = 'v4/group_open_http_svc/group_msg_recall',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1096,7 +1096,7 @@ export default class ImServerSDK implements ImServer {
             MaxMemberCount?: number | undefined;
             ApplyJoinOption?: string | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/import_group',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1107,7 +1107,7 @@ export default class ImServerSDK implements ImServer {
             RecentContactFlag: number;
             MsgList: ImMsgBody[];
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/import_group_msg',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1122,7 +1122,7 @@ export default class ImServerSDK implements ImServer {
                 UnreadMsgNum?: number | undefined;
             }[];
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/import_group_member',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1133,14 +1133,14 @@ export default class ImServerSDK implements ImServer {
             Member_Account: string;
             UnreadMsgNum: number;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/set_unread_msg_num',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public async delete_group_msg_by_sender(
         params: { GroupId: string; Sender_Account: string },
-        path: string,
+        path: string = 'v4/group_open_http_svc/delete_group_msg_by_sender',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
@@ -1151,14 +1151,14 @@ export default class ImServerSDK implements ImServer {
             ReqMsgNumber: number;
             ReqMsgSeq?: number | undefined;
         },
-        path: string,
+        path: string = 'v4/group_open_http_svc/group_msg_get_simple',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
 
     public async get_online_member_num(
         params: { GroupId: string },
-        path: string,
+        path: string = 'v4/group_open_http_svc/get_online_member_num',
     ): Promise<ImResult> {
         return await this.request({ method: 'POST', path, data: params });
     }
