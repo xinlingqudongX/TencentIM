@@ -1133,3 +1133,9 @@ export enum ImGroupType {
     音视频聊天室 = 'AVChatRoom',
     在线成员广播大群 = 'Community',
 }
+
+//  RTC地域类型
+export enum ImRtcRegion {
+    华北地区北京 = 'ap-beijing',
+    华南地区广州 = 'ap-guangzhou',
+}

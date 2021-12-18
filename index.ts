@@ -1,4 +1,5 @@
 import Crypto from 'crypto';
+import { BinaryToTextEncoding } from 'crypto';
 import Axios from 'axios';
 import { AxiosResponse } from 'axios';
 import * as tencentCloud from 'tencentcloud-sdk-nodejs';
@@ -12,6 +13,7 @@ import {
     ImMsgParams,
     ImProfileTag,
     ImResult,
+    ImRtcRegion,
     ImServer,
     offlinePushInfo,
 } from 'define_type';
@@ -22,7 +24,7 @@ export default class ImServerSDK implements ImServer {
         domain: string;
         servicename?: string;
         command?: string;
-        sdkappid: string;
+        // sdkappid: string;
         identifier: string;
         usersig?: string;
         // random?: string;
@@ -31,7 +33,7 @@ export default class ImServerSDK implements ImServer {
     } = {
         domain: 'console.tim.qq.com',
         ver: 'v4',
-        sdkappid: '',
+        // sdkappid: '',
         identifier: 'administrator',
         contenttype: 'json',
         expireSeconds: 60 * 60 * 24,
@@ -39,21 +41,24 @@ export default class ImServerSDK implements ImServer {
 
     public headers: {
         'X-TC-Action'?: string; //    操作的接口名称
-        'X-TC-Region': 'ap-beijing' | 'ap-guangzhou'; //    区域名称，地域参数
+        'X-TC-Region'?: ImRtcRegion; //    区域名称，地域参数
         'X-TC-Timestamp'?: string; //    时间戳，unix时间戳
         'X-TC-Version'?: string; //    版本号
-        Authorization: 'TC3-HMAC-SHA256'; //    签名，见附录
+        Algorithm: 'TC3-HMAC-SHA256'; //    签名，见附录
         'X-TC-Token'?: string; //    业务级别的token，见附录
         'X-TC-Language': 'zh-CN' | 'en-US'; //    语言参数，默认值为zh-cn
     } = {
-        Authorization: 'TC3-HMAC-SHA256',
+        Algorithm: 'TC3-HMAC-SHA256',
         'X-TC-Language': 'zh-CN',
-        'X-TC-Region': 'ap-guangzhou',
     };
 
-    public keydata: {
-        SecretId: string;
-        SecretKey: string;
+    public imConfig: {
+        IMAppid: string;
+        IMAppkey: string;
+    };
+    public rtcConfig: {
+        RTCAppid: number;
+        RTCAppkey: string;
     };
 
     #usersig: string;
@@ -62,25 +67,40 @@ export default class ImServerSDK implements ImServer {
     #sigTime: number;
     #sigBufTime: number;
 
-    public constructor(params: { SecretId: string; SecretKey: string }) {
+    public constructor(params: {
+        IMAppid: string;
+        IMAppkey: string;
+        RTCAppid?: number;
+        RTCAppkey?: string;
+    }) {
         this.init(params);
     }
 
-    private init(params: { SecretId: string; SecretKey: string }) {
-        const { SecretId, SecretKey } = params;
+    private init(params: {
+        IMAppid: string;
+        IMAppkey: string;
+        RTCAppid?: number;
+        RTCAppkey?: string;
+    }) {
+        const { IMAppid, IMAppkey, RTCAppid, RTCAppkey } = params;
 
-        this.keydata = {
-            SecretId,
-            SecretKey,
+        this.imConfig = {
+            IMAppid,
+            IMAppkey,
         };
 
-        this.config.sdkappid = SecretId;
+        if (RTCAppid && RTCAppkey) {
+            this.rtcConfig = {
+                RTCAppid,
+                RTCAppkey,
+            };
+        }
         this.#userBuf = null;
     }
 
-    public get header() {
-        return this.headers;
-    }
+    // public get header() {
+    //     return this.headers;
+    // }
 
     public get random() {
         const now = Date.now();
@@ -136,14 +156,14 @@ export default class ImServerSDK implements ImServer {
         const sigDoc = {
             'TLS.ver': '2.0',
             'TLS.identifier': `${userid}`,
-            'TLS.sdkappid': Number(this.config.sdkappid),
+            'TLS.sdkappid': Number(this.imConfig.IMAppid),
             'TLS.time': nowTime,
             'TLS.expire': expire,
         };
 
         let sig = '';
-        let signStr = `TLS.identifier:${userid}\nTLS.sdkappid:${this.config.sdkappid}\nTLS.time:${nowTime}\nTLS.expire:${expire}\n`;
-        const hmac = Crypto.createHmac('sha256', this.keydata.SecretKey);
+        let signStr = `TLS.identifier:${userid}\nTLS.sdkappid:${this.imConfig.IMAppid}\nTLS.time:${nowTime}\nTLS.expire:${expire}\n`;
+        const hmac = Crypto.createHmac('sha256', this.imConfig.IMAppkey);
         if (userBuf !== null) {
             const base64Buf = Buffer.from(userBuf).toString('base64');
             sigDoc['TLS.userbuf'] = base64Buf;
@@ -170,9 +190,22 @@ export default class ImServerSDK implements ImServer {
         };
         method: 'GET' | 'POST';
         data: { [key: string]: any };
+        Algorithm: string;
     }) {
-        const { header, method, data } = params;
+        const { header, method, data, Algorithm } = params;
+        const { host } = header;
+        const { RTCAppkey } = this.rtcConfig;
 
+        if (!RTCAppkey) {
+            throw new Error('RTCAppkey 未配置');
+        }
+
+        const date = new Date();
+        const timestamp =
+            // date.getTimezoneOffset() * 60 +
+            parseInt((date.getTime() / 1000).toString());
+        const today = date.toISOString().slice(0, 10);
+        const [service, domain, other] = host.split('.');
         //  请求头信息
         const headerStr = Object.keys(header)
             .map(key => key.toLocaleLowerCase())
@@ -188,25 +221,109 @@ export default class ImServerSDK implements ImServer {
 
         let hashStr = '';
         let queryStr = '';
-        const hashCrypto = Crypto.createHmac('sha256', '');
+        // const hashCrypto = Crypto.createHash('sha256');
         if (method === 'GET') {
             hashStr = '';
             queryStr = new URLSearchParams(data).toString();
         } else {
-            hashStr = hashCrypto.update(headerStr).digest('hex');
+            hashStr = this.getHash(JSON.stringify(data));
         }
 
-        const signStr = `${method}\n/\n${queryStr}\n${headerStr}\n${signHeaderStr}\n${hashStr}`;
+        const CanonicalRequest = `${method}\n/\n${queryStr}\n${headerStr}\n${signHeaderStr}\n${hashStr}`;
+        const HashedCanonicalRequest =
+            this.getHash(CanonicalRequest).toLocaleLowerCase();
+        const credentialScope = `${today}/${
+            other ? service : domain
+        }/tc3_request`;
+        const StringToSign = `${Algorithm}\n${timestamp}\n${credentialScope}\n${HashedCanonicalRequest}`;
+
+        const secretDate = this.sha256(`TC3${RTCAppkey}`, today);
+        const secretService = this.sha256(secretDate, other ? service : domain);
+        const secretSign = this.sha256(secretService, 'tc3_request');
+        const signature = this.sha256(secretSign, StringToSign, 'hex');
+        return { signature, date, credentialScope, signHeaderStr, timestamp };
     }
 
-    private sha256(message: string, secret = '', encoding = 'utf-8') {
+    private sha256(
+        message: string | Buffer,
+        secret = '',
+        encoding?: BinaryToTextEncoding,
+    ) {
         const hmac = Crypto.createHmac('sha256', secret);
-        return hmac.update(message).digest('hex');
+        return encoding
+            ? hmac.update(message).digest(encoding)
+            : hmac.update(message).digest();
     }
 
-    private getHash(message, encoding = 'hex') {
+    private getHash(
+        message: string | Buffer,
+        encoding: BinaryToTextEncoding = 'hex',
+    ) {
         const hash = Crypto.createHash('sha256');
-        return hash.update(message).digest('hex');
+        return hash.update(message).digest(encoding);
+    }
+
+    public async requests<T extends { [key: string]: any }>(params: {
+        host?: string;
+        Action: string;
+        Version: string;
+        Region: ImRtcRegion;
+        data: { [key: string]: any };
+    }) {
+        let {
+            host = 'trtc.tencentcloudapi.com',
+            data,
+            Version,
+            Region,
+            Action,
+        } = params;
+        const { Algorithm } = this.headers;
+
+        const { RTCAppkey, RTCAppid } = this.rtcConfig;
+
+        if (!RTCAppkey || !RTCAppid) {
+            throw new Error('未配置RTCAppkey或RTCAppid');
+        }
+
+        const { signature, timestamp, credentialScope, signHeaderStr } =
+            this.sign({
+                header: {
+                    'content-type': 'application/json; charset=utf-8',
+                    host,
+                },
+                method: 'POST',
+                data,
+                Algorithm,
+            });
+
+        const res: AxiosResponse<{
+            Response: T;
+            Error?: {
+                Code: string;
+                Message: string;
+            };
+        }> = await Axios({
+            url: `https://${host}`,
+            method: 'POST',
+            data: data,
+            // params: {
+            //     SdkAppId: RTCAppid,
+            //     Action,
+            //     Version,
+            //     Region,
+            // },
+            headers: {
+                host,
+                'content-type': 'application/json; charset=utf-8',
+                Authorization: `${Algorithm} Credential=${RTCAppid}/${credentialScope}, SignedHeaders=${signHeaderStr}, Signature=${signature}`,
+                'X-TC-Action': Action,
+                'X-TC-Version': Version,
+                'X-TC-Timestamp': timestamp.toString(),
+                'X-TC-Region': Region,
+            },
+        });
+
+        return res.data;
     }
 
     public async request<T extends { [key: string]: any }>(params: {
@@ -221,7 +338,8 @@ export default class ImServerSDK implements ImServer {
 
         const [_, ver, servicename, command] = path.split('/');
 
-        const { domain, sdkappid, identifier, contenttype } = this.config;
+        const { domain, identifier, contenttype } = this.config;
+        const { IMAppid } = this.imConfig;
         const random = this.random;
         const usersig = this.usersig;
 
@@ -233,7 +351,7 @@ export default class ImServerSDK implements ImServer {
                 Host: domain,
             },
             params: {
-                sdkappid,
+                sdkappid: IMAppid,
                 identifier,
                 usersig,
                 random,
@@ -287,15 +405,44 @@ export default class ImServerSDK implements ImServer {
     // //  查询历史房间和用户数
     // public async DescribeHistoryScale() {}
 
-    // //  房间管理相关接口
-    // //  移出用户
-    // public async RemoveUser() {}
-    // //  解散房间
-    // public async DismissRoom() {}
-    // //  移出用户（字符串房间号）
-    // public async RemoveUserByStrRoomId() {}
-    // //  解散房间（字符串房间号）
-    // public async DismissRoomByStrRoomId() {}
+    //  房间管理相关接口
+    //  移出用户
+    public async RemoveUser(params: {
+        Action?: string;
+        Version?: string;
+        Region: ImRtcRegion;
+        RoomId: number;
+        UserIds: Array<string>;
+    }) {
+        const {
+            Action = 'RemoveUser',
+            Version = '2019-07-22',
+            Region,
+            RoomId,
+            UserIds,
+        } = params;
+
+        const { RTCAppid } = this.rtcConfig;
+
+        return await this.requests<{
+            RequestId: string;
+        }>({
+            data: {
+                RoomId,
+                UserIds,
+                SdkAppId: RTCAppid,
+            },
+            Version,
+            Region,
+            Action,
+        });
+    }
+    //  解散房间
+    public async DismissRoom() {}
+    //  移出用户（字符串房间号）
+    public async RemoveUserByStrRoomId() {}
+    //  解散房间（字符串房间号）
+    public async DismissRoomByStrRoomId() {}
 
     public async account_import(
         params: {
