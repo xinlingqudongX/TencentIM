@@ -16,6 +16,7 @@ import {
     ImRtcRegion,
     ImServer,
     offlinePushInfo,
+    RoomState,
 } from 'define_type';
 
 export default class ImServerSDK implements ImServer {
@@ -397,7 +398,47 @@ export default class ImServerSDK implements ImServer {
     // //  查询详细事件
     // public async DescribeDetailEvent() {}
     // //  查询历史房间列表
-    // public async DescribeRoomInformation() {}
+    public async DescribeRoomInformation(params: {
+        Action?: string;
+        Version?: string;
+        Region: ImRtcRegion;
+        StartTime: number;
+        EndTime: number;
+        RoomId?: string;
+        PageNumber?: string;
+        PageSize?: string;
+    }) {
+        const {
+            Action = 'DescribeRoomInformation',
+            Version = '2018-07-12',
+            Region,
+            StartTime,
+            EndTime,
+            RoomId,
+            PageNumber = '1',
+            PageSize = '10',
+        } = params;
+
+        const { RTCAppid } = this.rtcConfig;
+
+        return await this.requests<{
+            Total: number;
+            RoomList: Array<RoomState>;
+            RequestId: string;
+        }>({
+            Action,
+            Version,
+            Region,
+            data: {
+                StartTime,
+                EndTime,
+                RoomId,
+                PageNumber,
+                PageSize,
+                SdkAppId: RTCAppid,
+            },
+        });
+    }
     // //  查询历史用户列表与通话指标
     // public async DescribeCallDetail() {}
     // //  查询历史用户列表
@@ -438,11 +479,93 @@ export default class ImServerSDK implements ImServer {
         });
     }
     //  解散房间
-    public async DismissRoom() {}
+    public async DismissRoom(params: {
+        Action?: string;
+        Version?: string;
+        Region: ImRtcRegion;
+        RoomId: number;
+    }) {
+        const {
+            Action = 'DismissRoom',
+            Version = '2019-07-22',
+            Region,
+            RoomId,
+        } = params;
+
+        const { RTCAppid } = this.rtcConfig;
+
+        return await this.requests<{
+            RequestId: string;
+        }>({
+            data: {
+                RoomId,
+                SdkAppId: RTCAppid,
+            },
+            Version,
+            Region,
+            Action,
+        });
+    }
     //  移出用户（字符串房间号）
-    public async RemoveUserByStrRoomId() {}
+    public async RemoveUserByStrRoomId(params: {
+        Action?: string;
+        Version?: string;
+        Region: ImRtcRegion;
+        RoomId: string;
+        UserIds: Array<string>;
+    }) {
+        const {
+            Action = 'RemoveUserByStrRoomId',
+            Version = '2019-07-22',
+            Region,
+            RoomId,
+            UserIds,
+        } = params;
+
+        const { RTCAppid } = this.rtcConfig;
+
+        return await this.requests<{
+            RequestId: string;
+        }>({
+            data: {
+                RoomId,
+                UserIds,
+                SdkAppId: RTCAppid,
+            },
+            Version,
+            Region,
+            Action,
+        });
+    }
     //  解散房间（字符串房间号）
-    public async DismissRoomByStrRoomId() {}
+    public async DismissRoomByStrRoomId(params: {
+        Action?: string;
+        Version?: string;
+        Region: ImRtcRegion;
+        RoomId: string;
+        UserIds: Array<string>;
+    }) {
+        const {
+            Action = 'DismissRoomByStrRoomId',
+            Version = '2019-07-22',
+            Region,
+            RoomId,
+        } = params;
+
+        const { RTCAppid } = this.rtcConfig;
+
+        return await this.requests<{
+            RequestId: string;
+        }>({
+            data: {
+                RoomId,
+                SdkAppId: RTCAppid,
+            },
+            Version,
+            Region,
+            Action,
+        });
+    }
 
     public async account_import(
         params: {

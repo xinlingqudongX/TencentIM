@@ -70,7 +70,7 @@ export interface ImCommandCallback {
         CallbackCommand: CommandType.状态变更回调;
         EventTime: number;
         Info: {
-            Action: string;
+            Action: ImUserActionType;
             To_Account: string;
             Reason: string;
         };
@@ -294,4 +294,11 @@ export enum ImGroupJoinType {
 export enum ImGroupExitType {
     被踢出 = 'Kicked',
     主动退出 = 'Quit',
+}
+
+//  用户动作类型
+export enum ImUserActionType {
+    登录 = 'Login',
+    登出 = 'Logout',
+    断开连接 = 'Disconnect',
 }

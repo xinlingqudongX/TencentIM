@@ -1139,3 +1139,13 @@ export enum ImRtcRegion {
     华北地区北京 = 'ap-beijing',
     华南地区广州 = 'ap-guangzhou',
 }
+
+//  房间状态
+export interface RoomState {
+    CommId: string; //   通话ID
+    RoomString: string; //   房间号
+    CreateTime: number; //   创建时间
+    DestoryTime: number; //   销毁时间
+    IsFinished: boolean; //   是否结束
+    UserId: string; //   房间创建者ID
+}
